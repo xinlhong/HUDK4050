@@ -1,0 +1,52 @@
+---
+title: "ICE7_R"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## XINLEI HONG
+## IC7
+
+1. Evaluate your ACA 2 and ACA 3 model performance with one or more appropriate diagnostic metrics.
+2. reflect on how well your model has performed.
+
+I decide to use Silhoutte Coefficient for my ACA3 data.
+
+
+**TASK 1**
+
+```{R TASK1}
+
+library(tidyverse)
+cscore <- read_csv("/Users/luke/Documents/HUDK4050/ACA3/CollegeScorecard.csv")
+cscoredic <- read_csv("/Users/luke/Documents/HUDK4050/ACA3/CollegeScorecardDataDictionary-09-12-2015.csv")
+
+#NPT4_PRIV is a variable a weighted  Average Net Price of all undergraduate.
+NEWcscore <- select(cscore, ADM_RATE, UNITID, INSTNM, NPT4_PRIV, ACTCM75)
+NEWcscore <- na.omit(NEWcscore)
+NEWcscore
+
+library(cluster)
+library(factoextra)
+
+NEWcscoreClean <- NEWcscore %>% 
+  select(-UNITID,-INSTNM)
+NEWcscoreClean
+
+NEWcscore2CL <- kmeans(NEWcscoreClean, centers = 2)
+plot(NEWcscoreClean, col=NEWcscore2CL$cluster)
+
+
+
+dis2CL = dist(NEWcscoreClean)^2
+sil2CL = silhouette(NEWcscore2CL$cluster, dis2CL)
+plot(sil2CL, col = NEWcscore2CL$cluster)
+fviz_silhouette(sil2CL)
+
+```
+
+

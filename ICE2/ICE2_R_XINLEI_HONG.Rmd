@@ -1,0 +1,110 @@
+---
+title: "ICE2_R"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## XINLEI HONG
+## ICE2
+
+**TASK 1**
+
+```{R TASK1}
+#Index with numbers and names
+v <- c(1,4,4,3,2,2,3)
+print(v)
+print(v[3])
+#print(v[2,3,4])
+print(v[c(2,4,1)])
+#have to add 'c' for more than one element
+df <- read.table(header=T, text='
+ subject sex size
+       1   M    7
+       2   F    6
+       3   F    9
+       4   M   11
+ ')
+
+print(df)
+print(df[1,3])
+
+print(df[1:2,2])
+
+print(df[1:3])
+
+
+
+```
+
+
+
+**TASK 2**
+```{R TASK2}
+#index with a boolean vector
+f <- df$size >= 9
+f
+df[f, ]
+print(v)
+print(v[-1])
+print(v[-1:-3])
+print(v)
+print(length(v))
+print(v[length(v)])
+```
+
+**TASK 3**
+```{R TASK3}
+#tidyverse
+library(tidyverse)
+ICEdata <- read_csv("/Users/luke/Documents/HUDK4050/ICE1/ICE1_Data.csv")
+new_ICE <- select(ICEdata, `DBN`, `Quality_Review_Score`, `Progress_Rpt_10-11`)
+new_ICE
+
+collegeGraduation <- mutate(ICEdata, colllegeGraduationRate =`college enroll 2010-11` / `graduation 2010-11`)
+collegeGraduation
+
+filter(ICEdata, `graduation 2010-11` > 0.8)
+filter(ICEdata, `graduation 2010-11` > 0.8 & `Quality_Review_Score` == "Proficient")
+new_ICE <- select(ICEdata, `Quality_Review_Score`, `Student_Progress_10-11`, `graduation 2010-11`)
+
+filter(new_ICE, `graduation 2010-11` > 0.8)
+ICEdata %>% 
+  select(`Quality_Review_Score`, `Student_Progress_10-11`, `graduation 2010-11`) %>% 
+  filter(`graduation 2010-11` > 0.8)
+```
+
+**TASK 4**
+```{R TASK4}
+#tidyverse
+library(nycflights13)
+data(flights)
+data(weather)
+flights <- flights %>% select(carrier, flight,
+                              origin, dest, time_hour)
+weather <- weather %>% select(temp, wind_speed, precip, origin, time_hour)
+mergeCols <- c("origin", "time_hour")
+
+g <- ICEdata %>% 
+  filter(`Quality_Review_Score` == "Proficient") %>% 
+  summarise(average = mean(`graduation 2010-11`, na.rm = TRUE),
+            standardDeviation = sd(`graduation 2010-11`, na.rm = TRUE))
+g
+ICEdata %>% group_by(Quality_Review_Score)
+
+ICEdata %>%
+  group_by(Quality_Review_Score) %>% 
+  summarize(GraduationAverage = mean(`graduation 2010-11`, na.rm = TRUE),
+            CollegeEnrollAverage = mean(`college enroll 2010-11`, na.rm = TRUE))
+
+#group by is not that useful on its own, instead, it is better to combine it with summarize
+
+
+
+```
+
+
+

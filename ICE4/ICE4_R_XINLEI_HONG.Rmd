@@ -1,0 +1,133 @@
+---
+title: "ICE4_R"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## XINLEI HONG
+## ICE4
+
+**TASK 1**
+
+```{R TASK1}
+library(tidyverse)
+mooc <- read_csv("/Users/luke/Documents/HUDK4050/ICE4/ICE4_Data.csv")
+mooc
+table(mooc$certified)
+summary(mooc)
+library(GGally)
+ggpairs(mooc, columns = 2:4, ggplot2::aes(color = certified))
+
+#people who got the certificate have higher grades, higher posts and do more optional assignments.
+
+moocD <- mooc %>% 
+  mutate(certified_yes = as_factor(certified)) %>%
+  select(certified_yes, forum.posts, grade, assignment)
+moocD
+
+logicModel <- glm(certified_yes ~forum.posts +grade + assignment, data = moocD, family = 'binomial')
+
+summary(logicModel)
+```
+
+
+**TASK 2**
+Decision tree
+```{R TASK2}
+library(party)
+moocTree <- ctree(
+  certified_yes ~ forum.posts + grade + assignment,
+  data = moocD
+)
+print(moocTree)
+plot(moocTree)
+
+
+
+```
+
+
+**TASK 3**
+Naive Bayes
+```{R TASK3}
+library(e1071)
+moocNB <- naiveBayes(
+  certified_yes ~ forum.posts +grade +assignment,
+  data = moocD
+)
+certified_pred_NB <- predict(moocNB, moocD[,2:4])
+
+performance = moocD$certified_yes == certified_pred_NB
+cat('The accuracy is', sum(performance)/length(performance)*100, '%')
+#The model has seen the data that makes the performance so good
+
+#1.split data
+set.seed(123)
+sample_size <- floor(0.8*nrow(moocD))
+picked <- sample(seq_len(nrow(moocD)), size = sample_size)
+training_moocD <- moocD[picked, ]
+testing_moocD <- moocD[-picked, ]
+
+#2. re-train model
+moocLogit <- glm(certified_yes ~ forum.posts + grade + assignment, data = training_moocD, family = "binomial")
+summary(moocLogit)
+
+moocTree_new <- ctree(
+  certified_yes ~ forum.posts + grade + assignment,
+  data = training_moocD)
+print(moocTree_new)
+plot(moocTree_new)
+
+#3. feed x and predict y
+#predict in regression model
+probabilities <- predict(moocLogit, testing_moocD[,2:4], type = 'response')
+certified_pred_logit <- ifelse(probabilities > 0.5, 'yes', 'no')
+#predict in decision tree model
+certified_pred_tree <- predict(moocTree, testing_moocD[,2:4])
+#predict in decision naive bayes model
+moocNB2 <- naiveBayes(
+  certified_yes ~ forum.posts +grade +assignment,
+  data = testing_moocD
+)
+certified_pred_NB2 <- predict(moocNB2, testing_moocD[,2:4])
+
+performance_new = training_moocD$certified_yes == certified_pred_NB2
+
+cat('The accuracy is', sum(performance_new)/length(performance_new)*100, '%')
+
+#4 obtain confusion matrix
+#regression model confusion matrix
+logitCM <- table(testing_moocD$certified_yes,certified_pred_logit)
+logitCM
+# decision tree confusion matrix
+treeCM <- table(testing_moocD$certified_yes,certified_pred_tree)
+treeCM
+# Naive Bayes confusion matrix
+NBCM <- table(testing_moocD$certified_yes,certified_pred_NB2)
+NBCM
+
+
+#5 compute accuracy score
+library(caret)
+# confusionMatrix(logitCM)
+# The line above will print out a comprehensive model performance report.
+# The line below will only give you the accuracy.
+logitAccuracy <- confusionMatrix(logitCM)$overall['Accuracy']
+cat('The accuracy for the logistic regression model is', logitAccuracy*100, '%')
+
+#decision tree model accuracy
+treeAccuracy <- confusionMatrix(treeCM)$overall['Accuracy']
+cat('The accuracy for the decision tree model is', treeAccuracy*100, '%')
+
+#Naive Bayes model accuracy
+NBAccuracy <- confusionMatrix(NBCM)$overall['Accuracy']
+cat('The accuracy for the Naive Bayes model is', NBAccuracy*100, '%')
+
+
+```
+
+

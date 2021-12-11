@@ -1,0 +1,115 @@
+---
+title: "ICE1_R"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## XINLEI HONG
+## ICE1
+
+**TASK 1**
+
+```{R TASK1}
+library(beepr)
+beep(5)
+beep(11)
+beepr::beep(5)
+
+?beepr
+
+(.packages())
+```
+
+
+
+**TASK 2**
+```{R TASK2}
+x<-1:10
+x
+
+typeof(x)
+length(x)
+
+y<-TRUE
+typeof(y)
+
+characterData <- c("East","West","East","North","North","East","West","West","West","East","North")
+
+typeof(characterData)
+
+factor_data <- factor(characterData)
+typeof(factor_data)
+factor_data
+
+```
+
+**TASK 3**
+```{R TASK3}
+#Matrix data frame are two way dimensions
+
+m<- matrix(1:30, nrow = 5, ncol = 6, byrow = FALSE)
+m
+
+n<- matrix(c(1:30), nrow = 5, ncol = 6, byrow = TRUE)
+n
+#different
+dim(n)
+typeof(n)
+
+#head() - shows first 6 rows
+#tail() - shows last 6 rows
+#dim() - returns the dimensions of data frame (i.e. number of rows and number of columns)
+#nrow() - number of rows
+#ncol() - number of columns
+#str() - structure of data frame - name, type and preview of data in each column
+#names() or colnames() - both show the names attribute for a data frame
+#sapply(dataframe, class) - shows the class of each column in the data frame
+
+
+data('mtcars')
+head(mtcars)
+```
+
+**TASK 4**
+```{R TASK4}
+#tidyverse
+library(tidyverse)
+library(readr)
+ICE_Data <- read_csv("/Users/luke/Documents/HUDK4050/ICE1/ICE1_Data.csv")
+
+ICE_Data
+
+summary(ICE_Data)
+
+
+ICE_Data_factor <- ICE_Data %>%
+  mutate_if(sapply(ICE_Data, is.character), as.factor)
+summary(ICE_Data_factor)
+
+StudentProgressGraduation <- ICE_Data_factor %>%
+  select('Progress_Rpt_10-11', 'graduation 2010-11')
+StudentProgressGraduation
+
+graduation201011 <- ICE_Data$'graduation 2010-11'
+head(graduation201011)
+graduation201011
+mean(graduation201011)
+#Returns NA
+mean(graduation201011, na.rm = TRUE)
+#Remove NA to see other values mean
+median(graduation201011)
+#Returns NA
+length(graduation201011)
+#Returns 422
+
+plot(StudentProgressGraduation)
+
+hist(graduation201011)
+```
+
+
+

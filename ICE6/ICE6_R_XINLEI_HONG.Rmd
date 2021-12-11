@@ -1,0 +1,65 @@
+---
+title: "ICE6_R"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## XINLEI HONG
+## ICE6
+
+**TASK 1**
+
+```{R TASK1}
+library(tidyverse)
+set.seed(123)
+
+# A list of 200 values of x with means of 1 and sd of 1.5
+X <- rnorm(200, mean = 1, sd = 1.5)
+# A list of 200 residuals with sd of 0.5
+res <- rnorm(200, mean = 0, sd = 0.5)
+y <- 1 + 2 * X + res
+
+twoDData <- tibble(X = X, y = y)
+plot(twoDData)
+
+pca <- prcomp(twoDData, scale. = TRUE)
+
+summary(pca)
+pca$rotation
+
+#PCA for Dimension Reducation
+pc1 <- pca$x[,1]
+rotation1 <- pca$rotation[,1]
+
+plot(scale(twoDData), col = "blue") # the original data is scaled because PCA is also scaled
+points(pc1 %*% t(rotation1), col = "orange")
+
+
+#This reduced-dimension dataset is in some senses “good enough” to encode the most important relationships between the points: despite reducing the dimension of the data by 50%, the overall relationship between the data points are mostly preserved.
+
+ICEdata <- read.csv("/Users/luke/Documents/HUDK4050/ICE6/ICE6_Data.csv")
+
+ICEdata
+
+ICEdata_noid <- ICEdata %>% select(-id)
+icepca <- prcomp(ICEdata_noid, scale. = FALSE) # Here let's see a unscaled example
+summary(icepca)
+
+icepca2c <- icepca$x[,1:2]
+plot(icepca2c)
+
+cl <- kmeans(icepca2c, centers = 3)
+plot(icepca2c, col = cl$cluster)
+
+
+
+#kmeasn clustering shows the same result as pca showed, pca's two higher variances are two higher clusters in kmeas.
+
+```
+
+
+
