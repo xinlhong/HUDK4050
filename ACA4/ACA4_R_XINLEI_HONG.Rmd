@@ -1,0 +1,61 @@
+---
+title: "ACA4_R"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## XINLEI HONG
+## ACA4
+
+**TASK 1**
+
+```{R TASK1}
+library(igraph)
+library(tidyverse)
+
+mySNAdata <- read.csv("/Users/luke/Documents/HUDK4050/ACA4/ACA4_Data.csv", row.names = 1)
+
+mynet <- graph_from_adjacency_matrix(as.matrix(mySNAdata), weighted=TRUE, mode="undirected")
+
+plot(mynet) 
+
+vcount(mynet)
+
+
+ecount(mynet)
+
+#number of edges is 38 and nodes are 10
+
+
+edge_density(mynet)
+#density is 0.84
+
+
+diameter(mynet)
+#diameter is 2
+
+degree(mynet)
+#degree centrality shows above
+
+betweenness(mynet, directed = FALSE, normalized = TRUE)
+#luke and kx have higher influence
+
+fc <- cluster_fast_greedy(mynet)
+membership(fc)
+
+sizes(fc)
+#community 1 has 7 actors and community 2 has 3 actors
+
+
+V(mynet)$color <- fc$membership
+plot(mynet)
+
+
+```
+
+
+

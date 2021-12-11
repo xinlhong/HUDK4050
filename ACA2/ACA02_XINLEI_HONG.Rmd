@@ -1,0 +1,108 @@
+---
+title: "ACA02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## XINLEI HONG
+## ACA02
+
+**TASK 1**
+
+```{R TASK1}
+library(tidyverse)
+acatrain <- read_csv("/Users/luke/Documents/HUDK4050/ACA2/aca2_dataset_training.csv")
+acavalid <- read_csv("/Users/luke/Documents/HUDK4050/ACA2/aca2_dataset_validation.csv")
+
+
+New_acatrain <- acatrain %>% 
+  mutate(ontask = as_factor(ONTASK)) %>%
+  select(ontask, GRADE, NumACTIVITIES, TRANSITIONS, `Total Time`)
+New_acatrain
+
+New_acavalid <- acavalid %>% 
+  mutate(ontask = as_factor(ONTASK)) %>%
+  select(ontask, GRADE, NumACTIVITIES, TRANSITIONS, `Total Time`)
+New_acavalid
+#descriptive analysis
+summary(New_acatrain)
+
+library(psych)
+pairs.panels(New_acatrain,
+             hist.col = '#6cace4',
+             ellipses = FALSE
+             )
+#check through graphs
+videoModel <- lm(ontask ~ GRADE + NumACTIVITIES + TRANSITIONS + `Total Time`, data = New_acatrain)
+
+
+library(GGally)
+ggpairs(New_acatrain, columns = 2:5, ggplot2::aes(color = ontask))
+
+
+```
+
+
+**TASK 2**
+
+Decision tree
+
+```{R TASK2}
+library(party)
+trainTree <- ctree(
+  ontask ~ GRADE + NumACTIVITIES + TRANSITIONS + `Total Time`,
+  data = New_acatrain
+)
+print(trainTree)
+plot(trainTree)
+
+pred_tree <-  predict(trainTree, New_acavalid)
+
+treeCM <- table(New_acavalid$ontask, pred_tree)
+treeCM
+
+library(caret)
+#decision tree model accuracy
+treeAccuracy <- confusionMatrix(treeCM)$overall['Accuracy']
+cat('The accuracy for the decision tree model is', treeAccuracy*100, '%')
+
+```
+Decision tree model has a accuracy of 66.67% Let's check Naive Bayes to see if there is any difference or not.
+
+**TASK 3**
+
+Naive Bayes
+
+```{R TASK3}
+library(e1071)
+trainNB <- naiveBayes(
+  ontask ~ GRADE + NumACTIVITIES + TRANSITIONS + `Total Time`,
+  data = New_acatrain
+)
+
+pred_NB <- predict(trainNB, New_acavalid)
+
+#performance = moocD$certified_yes == certified_pred_NB
+#cat('The accuracy is', sum(performance)/length(performance)*100, '%')
+
+#performance_new = training_moocD$certified_yes == certified_pred_NB2
+
+#cat('The accuracy is', sum(performance_new)/length(performance_new)*100, '%')
+
+# Naive Bayes confusion matrix
+NBCM <- table(New_acavalid$ontask, pred_NB)
+NBCM
+
+#Naive Bayes model accuracy
+NBAccuracy <- confusionMatrix(NBCM)$overall['Accuracy']
+cat('The accuracy for the Naive Bayes model is', NBAccuracy*100, '%')
+
+
+```
+
+There is no difference between these two models. For the accuracy of 66.67%, I would say that the models are acceptable. However, it is interesting to see that both models have same accuracy. On the other hand, variable selection may play an important role but I have tested several different variables, it turns out same accuracy. Either validation data is not strongly connected or only certain variable plays an important part in these prediction models. 
+

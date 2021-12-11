@@ -1,0 +1,75 @@
+---
+title: "ACA3_R"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## XINLEI HONG
+## ACA3
+
+You are a data scientist hired by a non-profit organization whose mission is to increase college graduation rates for underpriveleged populations. Through advocacy and targeted outreach programs, your organization strives to identify and alleviate barriers to educational achievement.
+
+Your team is committed to developing a more data-based approach to decision making. As a prelude to future analyses, you are requested to analyze the data to identify clusters of similar colleges and universities
+
+
+**TASK 1**
+
+```{R TASK1}
+library(tidyverse)
+cscore <- read_csv("/Users/luke/Documents/HUDK4050/ACA3/CollegeScorecard.csv")
+cscoredic <- read_csv("/Users/luke/Documents/HUDK4050/ACA3/CollegeScorecardDataDictionary-09-12-2015.csv")
+
+#NPT4_PRIV is a variable a weighted  Average Net Price of all undergraduate.
+NEWcscore <- select(cscore, ADM_RATE, UNITID, INSTNM, NPT4_PRIV, ACTCM75)
+NEWcscore <- na.omit(NEWcscore)
+NEWcscore
+
+library(cluster)
+library(factoextra)
+
+NEWcscoreClean <- NEWcscore %>% 
+  select(-UNITID,-INSTNM)
+NEWcscoreClean
+
+NEWcscore2CL <- kmeans(NEWcscoreClean, centers = 2)
+dis2CL = dist(NEWcscoreClean)^2
+sil2CL = silhouette(NEWcscore2CL$cluster, dis2CL)
+fviz_silhouette(sil2CL)
+
+#average width is 0.74
+
+NEWcscore3CL <- kmeans(NEWcscoreClean, centers = 3)
+dis3CL = dist(NEWcscoreClean)^2
+sil3CL = silhouette(NEWcscore3CL$cluster, dis3CL)
+fviz_silhouette(sil3CL)
+
+#average width is 0.68
+
+NEWcscore4CL <- kmeans(NEWcscoreClean, centers = 4)
+dis4CL = dist(NEWcscoreClean)^2
+sil4CL = silhouette(NEWcscore4CL$cluster, dis4CL)
+fviz_silhouette(sil4CL)
+
+#average width is 0.68
+
+NEWcscore5CL <- kmeans(NEWcscoreClean, centers = 5)
+dis5CL = dist(NEWcscoreClean)^2
+sil5CL = silhouette(NEWcscore5CL$cluster, dis5CL)
+fviz_silhouette(sil5CL)
+
+#average width is 0.7
+
+
+#The cluster_n = 3 and n = 4 have the lowest silhouette coefficient. The cluster_n = 2 seems to be the best as it has the highest silhouette coefficient which is 0.74. All the clusters also share same similarity that the slope slowly decrease at first then decrease sharply.
+
+NEWcscoreClean %>% mutate(cluster = NEWcscore2CL$cluster)
+
+fviz_nbclust(NEWcscoreClean, kmeans, method = "wss")
+```
+
+
+
